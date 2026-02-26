@@ -19,7 +19,7 @@ export const POST = withErrorHandler(async (req: Request) => {
     const result = loginSchema.safeParse(body);
     if (!result.success) {
         return NextResponse.json(
-            { error: result.error.message },
+            { error: result.error.issues[0].message },
             { status: 400 }
         );
     }
@@ -54,13 +54,14 @@ export const POST = withErrorHandler(async (req: Request) => {
 
 
     const response = NextResponse.json(
-        { user: 
-            { 
-                id: user.id, 
-                name: user.name, 
-                email: user.email, 
-                createdAt: user.createdAt 
-            } 
+        {
+            user:
+            {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                createdAt: user.createdAt
+            }
         },
         { status: 200 }
     );

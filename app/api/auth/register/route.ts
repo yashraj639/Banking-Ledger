@@ -2,8 +2,9 @@ import { z } from "zod";
 import { withErrorHandler } from "@/lib/utils/api-handler";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { users } from "@/lib/db/schema/user";
 import { hashPassword } from "@/lib/utils/hash";
+import { sendWelcomeEmail } from "@/lib/utils/mailer";
 import { eq } from "drizzle-orm";
 
 const registerSchema = z.object({
@@ -18,7 +19,7 @@ export const POST = withErrorHandler(async (req: Request) => {
     const result = registerSchema.safeParse(body);
     if (!result.success) {
         return NextResponse.json(
-            { error: result.error.message },
+            { error: result.error.issues[0].message },
             { status: 400 }
         );
     }
@@ -40,7 +41,6 @@ export const POST = withErrorHandler(async (req: Request) => {
 
     const passwordHash = await hashPassword(password);
 
-
     const [newUser] = await db
         .insert(users)
         .values({ name, email, passwordHash })
@@ -51,5 +51,13 @@ export const POST = withErrorHandler(async (req: Request) => {
             createdAt: users.createdAt,
         });
 
-    return NextResponse.json({ user: newUser }, { status: 201 });
+    // Send welcome email (non-blocking — don't await so it doesn't slow down the response)
+    sendWelcomeEmail(name, email).catch((err) =>
+        console.error("[Email Error]", err)
+    );
+
+    return NextResponse.json(
+        { user: newUser, message: "Account created! Welcome to Zeno." },
+        { status: 201 }
+    );
 })
