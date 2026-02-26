@@ -1,8 +1,8 @@
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { withErrorHandler } from "@/lib/utils/api-handler";
-import { comparePassword } from "@/lib/utils/hash";
-import { signToken } from "@/lib/utils/jwt";
+import { db } from "@/app/lib/db";
+import { users } from "@/app/lib/db/schema";
+import { withErrorHandler } from "@/app/lib/utils/api-handler";
+import { comparePassword } from "@/app/lib/utils/hash";
+import { generateToken } from "@/app/lib/utils/jwt";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -50,7 +50,7 @@ export const POST = withErrorHandler(async (req: Request) => {
 
     const user = existingUser[0];
 
-    const token = signToken({ userId: user.id, email: user.email });
+    const token = generateToken(user.id);
 
 
     const response = NextResponse.json(

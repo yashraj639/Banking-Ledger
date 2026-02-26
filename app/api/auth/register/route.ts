@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { withErrorHandler } from "@/lib/utils/api-handler";
+import { withErrorHandler } from "@/app/lib/utils/api-handler";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema/user";
-import { hashPassword } from "@/lib/utils/hash";
-import { sendWelcomeEmail } from "@/lib/utils/mailer";
+import { db } from "@/app/lib/db";
+import { users } from "@/app/lib/db/schema/user";
+import { hashPassword } from "@/app/lib/utils/hash";
+import { sendWelcomeEmail } from "@/app/lib/utils/mailer";
 import { eq } from "drizzle-orm";
 
 const registerSchema = z.object({

@@ -1,4 +1,4 @@
-import { withErrorHandler } from "@/lib/utils/api-handler";
+import { withErrorHandler } from "@/app/lib/utils/api-handler";
 import { NextResponse } from "next/server";
 
 export const POST = withErrorHandler(async (req: Request) => {

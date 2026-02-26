@@ -7,10 +7,14 @@ const PG_ERRORS: Record<string, { message: string; status: number }> = {
     "ECONNREFUSED": { message: "Database unavailable", status: 503 },
 };
 
-export function withErrorHandler(handler: (req: Request) => Promise<Response>) {
-    return async (req: Request) => {
+export function withErrorHandler<TContext = undefined>(
+    handler: TContext extends undefined
+        ? (req: Request) => Promise<Response>
+        : (req: Request, context: TContext) => Promise<Response>
+) {
+    return async (req: Request, context?: TContext) => {
         try {
-            return await handler(req);
+            return await (handler as (req: Request, context?: TContext) => Promise<Response>)(req, context);
         } catch (error) {
             console.error("[API Error]", error);
 
