@@ -2,7 +2,7 @@ import { z } from "zod";
 import { withErrorHandler } from "@/app/lib/utils/api-handler";
 import { NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
-import { users } from "@/app/lib/db/schema/user";
+import { users } from "@/app/lib/db/schema/users";
 import { hashPassword } from "@/app/lib/utils/hash";
 import { sendWelcomeEmail } from "@/app/lib/utils/mailer";
 import { eq } from "drizzle-orm";

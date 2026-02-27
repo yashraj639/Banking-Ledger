@@ -6,7 +6,7 @@ import {
     timestamp,
     index,
 } from "drizzle-orm/pg-core";
-import { users } from "./user";
+import { users } from "./users";
 
 export const accountStatusEnum = pgEnum("account_status", ["pending", "active", "closed"]);
 

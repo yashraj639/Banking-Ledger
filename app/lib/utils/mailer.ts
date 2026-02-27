@@ -31,3 +31,15 @@ export async function sendWelcomeEmail(name: string, email: string) {
         `,
     });
 }
+
+export async function sendTransactionEmail(fromAccountId: string, toAccountId: string, amount: string) {
+    await transporter.sendMail({
+        from: `"Zeno" <${process.env.EMAIL_USER}>`,
+        to: "[EMAIL_ADDRESS]",
+        subject: "Transaction Alert",
+        html: `
+            <h2>Transaction Alert</h2>
+            <p>Hey Yash, your transaction has been completed successfully!</p>
+        `,
+    });
+}
