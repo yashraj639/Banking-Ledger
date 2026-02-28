@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import z, { ZodError } from "zod";
-import { AppError } from "@/app/lib/error";
+import { ZodError } from "zod";
+import { AppError } from "@/errors/error";
 
 const PG_ERRORS: Record<string, { message: string; status: number }> = {
     "23505": { message: "Resource already exists", status: 409 },
@@ -28,7 +28,7 @@ export function withErrorHandler<TContext>(handler: Handler<TContext>) {
             // Zod validation errors
             if (error instanceof ZodError) {
                 return NextResponse.json(
-                    { error: "Validation failed", details: z.treeifyError(error) },
+                    { error: "Validation failed", details: error.flatten().fieldErrors },
                     { status: 422 }
                 );
             }

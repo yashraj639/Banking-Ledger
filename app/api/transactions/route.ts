@@ -1,10 +1,10 @@
 import { db } from "@/app/lib/db";
 import { getBalance } from "@/app/lib/db/queries/balance";
 import { accounts, ledger, transactions } from "@/app/lib/db/schema";
-import { NotFoundError, UnauthorizedError, ValidationError } from "@/app/lib/error";
+import { NotFoundError, UnauthorizedError, ValidationError } from "@/errors/error";
 import { withErrorHandler } from "@/app/lib/utils/api-handler";
 import { sendTransactionEmail } from "@/app/lib/utils/mailer";
-import { eq } from "drizzle-orm";
+import { eq, or, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 /**
@@ -113,4 +113,28 @@ export const POST = withErrorHandler(async (req: Request) => {
 
     return NextResponse.json({ success: true }, { status: 201 });
 
+});
+
+export const GET = withErrorHandler(async (req: Request) => {
+    const userId = req.headers.get("x-user-id");
+    if (!userId) throw new UnauthorizedError();
+
+    const userAccounts = await db.select().from(accounts).where(eq(accounts.userId, userId));
+    const accountIds = userAccounts.map(a => a.id);
+
+    if (accountIds.length === 0) {
+        return NextResponse.json({ success: true, data: [] });
+    }
+
+    const history = await db
+        .select()
+        .from(transactions)
+        .where(
+            or(
+                inArray(transactions.fromAccountId, accountIds),
+                inArray(transactions.toAccountId, accountIds)
+            )
+        );
+
+    return NextResponse.json({ success: true, data: history });
 });
