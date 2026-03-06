@@ -1,12 +1,12 @@
-# 🏦 Zeno Bank — Banking Ledger API
+# 🏦 Zeno Bank — Banking Ledger
 
-A production-grade banking ledger backend built with **Next.js**, **PostgreSQL**, and **Drizzle ORM**. Implements real double-entry bookkeeping principles with atomic transactions, idempotency, and a full audit trail.
-
-> ⚠️ Frontend coming soon — built backend first to get the architecture right.
+A production-grade full-stack banking ledger built with **Next.js**, **PostgreSQL**, and **Drizzle ORM**. Implements real double-entry bookkeeping principles with atomic transactions, idempotency, and a full audit trail — complete with a **Neobrutalist frontend UI**.
 
 ---
 
 ## ✨ Features
+
+### Backend
 
 - 🔐 **JWT Authentication** — Register, login, email verification via Gmail OAuth2
 - 🏦 **Account Management** — Create accounts with automatic ₹10,000 seed balance
@@ -17,18 +17,27 @@ A production-grade banking ledger backend built with **Next.js**, **PostgreSQL**
 - 📧 **Email Notifications** — Transaction alerts via Nodemailer
 - 🏛️ **System Account** — Seed account that bootstraps every new user's balance
 
+### Frontend
+
+- 🎨 **Neobrutalist UI** — Bold borders, punchy shadows, vibrant color palette
+- 📊 **Dashboard** — Live balance card + full transaction history with credit/debit color coding
+- 💸 **Transfer Page** — Send money with real-time success/error feedback
+- 🔒 **Auth Pages** — Login and Register with form validation and loading states
+- 🔗 **Client API Layer** — Centralized `api.ts` helper talking to all backend routes
+
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer     | Technology                |
-| --------- | ------------------------- |
-| Framework | Next.js 16 (App Router)   |
-| Database  | PostgreSQL                |
-| ORM       | Drizzle ORM               |
-| Auth      | JWT + bcrypt              |
-| Email     | Nodemailer + Gmail OAuth2 |
-| Language  | TypeScript                |
+| Layer     | Technology                 |
+| --------- | -------------------------- |
+| Framework | Next.js (App Router)       |
+| Database  | PostgreSQL                 |
+| ORM       | Drizzle ORM                |
+| Auth      | JWT + bcrypt               |
+| Email     | Nodemailer + Gmail OAuth2  |
+| Styling   | Vanilla CSS (Neobrutalism) |
+| Language  | TypeScript                 |
 
 ---
 
@@ -39,7 +48,8 @@ A production-grade banking ledger backend built with **Next.js**, **PostgreSQL**
 │   ├── api/
 │   │   ├── auth/
 │   │   │   ├── register/     # POST — user registration + email verification
-│   │   │   └── login/        # POST — JWT login
+│   │   │   ├── login/        # POST — JWT login
+│   │   │   └── verify-email/ # GET — email verification
 │   │   ├── accounts/
 │   │   │   ├── route.ts      # POST — create account | GET — list accounts
 │   │   │   └── [id]/
@@ -47,13 +57,19 @@ A production-grade banking ledger backend built with **Next.js**, **PostgreSQL**
 │   │   │       └── balance/  # GET — live balance from ledger
 │   │   └── transactions/
 │   │       └── route.ts      # POST — transfer | GET — transaction history
+│   ├── dashboard/            # Dashboard page (balance + transactions)
+│   ├── login/                # Login page
+│   ├── register/             # Register page
+│   ├── transfer/             # Transfer page
 │   └── lib/
+│       ├── api.ts            # Client-side API helper functions
 │       ├── db/
 │       │   ├── schema/       # Drizzle schema definitions
 │       │   └── queries/      # Reusable DB queries (getBalance)
 │       └── utils/
+│           ├── jwt.ts        # JWT sign/verify helpers
 │           ├── api-handler.ts  # Centralized error handling
-│           └── mailer.ts       # Email utility
+│           └── mailer.ts     # Email utility
 ├── errors/
 │   └── error.ts              # Typed error classes
 ├── scripts/
@@ -144,6 +160,27 @@ WHERE account_id = ?
 
 ---
 
+## 🔐 Authentication Flow
+
+```
+Client (Cookie: JWT httpOnly)
+        │
+        ▼
+proxy.ts (Next.js Middleware)
+  ├── Unpack cookie
+  ├── Decode & verify JWT
+  └── Inject x-user-id header
+        │
+        ▼
+API Routes (App Router)
+  └── Read x-user-id to authorize queries
+        │
+        ▼
+Drizzle ORM → PostgreSQL
+```
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Clone and install
@@ -218,10 +255,5 @@ Floating point arithmetic has rounding errors. `0.1 + 0.2 = 0.30000000000000004`
 **Why atomic transactions?**
 The DEBIT and CREDIT ledger entries must either both succeed or both fail. Using `db.transaction()` ensures this — a crash between the two inserts triggers an automatic rollback.
 
----
-
-## 🔜 Coming Soon
-
-- [ ] Frontend UI (neobrutalist design with shadcn)
-- [ ] Deployment on Vercel
-- [ ] Full interview Q&A guide
+**Why middleware injects `x-user-id`?**
+Rather than decoding the JWT in every API route, `proxy.ts` centralises auth. Each route just reads `req.headers.get("x-user-id")` — clean, consistent, and impossible to spoof since the header is injected server-side.
