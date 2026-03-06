@@ -36,7 +36,7 @@ A production-grade full-stack banking ledger built with **Next.js**, **PostgreSQ
 | ORM       | Drizzle ORM                |
 | Auth      | JWT + bcrypt               |
 | Email     | Nodemailer + Gmail OAuth2  |
-| Styling   | Vanilla CSS (Neobrutalism) |
+| Styling   | Tailwind CSS (Neobrutalism)|
 | Language  | TypeScript                 |
 
 ---
@@ -49,7 +49,7 @@ A production-grade full-stack banking ledger built with **Next.js**, **PostgreSQ
 │   │   ├── auth/
 │   │   │   ├── register/     # POST — user registration + email verification
 │   │   │   ├── login/        # POST — JWT login
-│   │   │   └── verify-email/ # GET — email verification
+│   │   │   └── logout/       # POST — logout
 │   │   ├── accounts/
 │   │   │   ├── route.ts      # POST — create account | GET — list accounts
 │   │   │   └── [id]/
@@ -197,9 +197,9 @@ npm install
 DATABASE_URL=postgresql://...
 JWT_SECRET=your_secret
 EMAIL_USER=your_gmail
-EMAIL_CLIENT_ID=...
-EMAIL_CLIENT_SECRET=...
-EMAIL_REFRESH_TOKEN=...
+CLIENT_ID=...
+CLIENT_SECRET=...
+REFRESH_TOKEN=...
 SYSTEM_ACCOUNT_ID=<from seed script>
 ```
 
@@ -231,7 +231,7 @@ npm run dev
 | ------ | --------------------------- | ------------------------------------- |
 | POST   | `/api/auth/register`        | Register new user                     |
 | POST   | `/api/auth/login`           | Login + get JWT                       |
-| GET    | `/api/auth/verify-email`    | Verify email                          |
+| POST   | `/api/auth/logout`          | Logout + remove JWT                   |
 | POST   | `/api/accounts`             | Create account (auto-credits ₹10,000) |
 | GET    | `/api/accounts`             | List user's accounts                  |
 | GET    | `/api/accounts/:id`         | Get account by ID                     |
@@ -241,19 +241,3 @@ npm run dev
 
 ---
 
-## 🧠 Design Decisions
-
-**Why double-entry ledger?**
-Every transfer creates two entries — a DEBIT and a CREDIT. This means every rupee is always traceable. The balance is always derivable from history, never just a number that can silently change.
-
-**Why idempotency keys?**
-Network issues can cause duplicate requests. With `idempotencyKey`, retrying a transfer is safe — the second request detects the first succeeded and returns it without creating a duplicate transaction.
-
-**Why `numeric` not `float` for money?**
-Floating point arithmetic has rounding errors. `0.1 + 0.2 = 0.30000000000000004` in JavaScript. `numeric(20,2)` in PostgreSQL stores exact decimal values.
-
-**Why atomic transactions?**
-The DEBIT and CREDIT ledger entries must either both succeed or both fail. Using `db.transaction()` ensures this — a crash between the two inserts triggers an automatic rollback.
-
-**Why middleware injects `x-user-id`?**
-Rather than decoding the JWT in every API route, `proxy.ts` centralises auth. Each route just reads `req.headers.get("x-user-id")` — clean, consistent, and impossible to spoof since the header is injected server-side.
