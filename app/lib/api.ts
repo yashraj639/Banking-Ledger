@@ -78,6 +78,8 @@ export interface Transaction {
     idempotencyKey: string;
     currency: string;
     createdAt: string;
+    fromUserName: string | null;
+    toUserName: string | null;
 }
 
 export async function getTransactions() {

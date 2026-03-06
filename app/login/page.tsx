@@ -12,19 +12,26 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await login(email, password);
-      router.push("/dashboard");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed");
-    } finally {
-      setLoading(false);
-    }
+ async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!email || !password) {
+    setError("Email and password are required");
+    return;
   }
+
+  setError("");
+  setLoading(true);
+
+  try {
+    await login(email, password);
+    router.replace("/dashboard"); 
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Login failed");
+  } finally {
+    setLoading(false);
+  }
+}
 
   return (
     <main className="min-h-screen bg-[#fffaf0] flex items-center justify-center p-4">
@@ -32,7 +39,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="inline-block bg-[#fde047] border-2 border-black px-4 py-2 mb-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-            <span className="text-2xl font-black tracking-tight">🏦 ZENO</span>
+            <span className="text-2xl font-black tracking-tight"> ZENO</span>
           </div>
           <h1 className="text-4xl font-black text-black leading-tight">
             Welcome

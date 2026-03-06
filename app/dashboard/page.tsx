@@ -164,7 +164,9 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="font-black text-sm">
-                          {isCredit ? "Received" : "Sent"}
+                          {isCredit
+                            ? `From: ${txn.fromUserName ?? "Unknown"}`
+                            : `To: ${txn.toUserName ?? "Unknown"}`}
                         </p>
                         <p className="text-xs text-gray-500 font-mono">
                           {new Date(txn.createdAt).toLocaleDateString("en-IN", {

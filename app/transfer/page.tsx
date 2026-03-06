@@ -51,7 +51,7 @@ export default function TransferPage() {
       {/* Navbar */}
       <nav className="flex items-center justify-between mb-8 pb-4 border-b-2 border-black">
         <div className="bg-[#fde047] border-2 border-black px-3 py-1 shadow-[3px_3px_0px_rgba(0,0,0,1)]">
-          <span className="font-black text-lg">🏦 ZENO</span>
+          <span className="font-black text-lg"> ZENO</span>
         </div>
         <Link
           href="/dashboard"

@@ -1,10 +1,11 @@
 import { db } from "@/app/lib/db";
 import { getBalance } from "@/app/lib/db/queries/balance";
-import { accounts, ledger, transactions } from "@/app/lib/db/schema";
+import { accounts, ledger, transactions, users } from "@/app/lib/db/schema";
 import { NotFoundError, UnauthorizedError, ValidationError } from "@/errors/error";
 import { withErrorHandler } from "@/app/lib/utils/api-handler";
 import { sendTransactionEmail } from "@/app/lib/utils/mailer";
 import { eq, or, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { NextResponse } from "next/server";
 
 /**
@@ -128,15 +129,36 @@ export const GET = withErrorHandler(async (req: Request) => {
         return NextResponse.json({ success: true, data: [] });
     }
 
+    const fromAccount = alias(accounts, "fromAccount");
+    const fromUser = alias(users, "fromUser");
+    const toAccount = alias(accounts, "toAccount");
+    const toUser = alias(users, "toUser");
+
     const history = await db
-        .select()
+        .select({
+            id: transactions.id,
+            fromAccountId: transactions.fromAccountId,
+            toAccountId: transactions.toAccountId,
+            amount: transactions.amount,
+            status: transactions.status,
+            idempotencyKey: transactions.idempotencyKey,
+            currency: transactions.currency,
+            createdAt: transactions.createdAt,
+            fromUserName: fromUser.name,
+            toUserName: toUser.name,
+        })
         .from(transactions)
+        .leftJoin(fromAccount, eq(fromAccount.id, transactions.fromAccountId))
+        .leftJoin(fromUser, eq(fromUser.id, fromAccount.userId))
+        .leftJoin(toAccount, eq(toAccount.id, transactions.toAccountId))
+        .leftJoin(toUser, eq(toUser.id, toAccount.userId))
         .where(
             or(
                 inArray(transactions.fromAccountId, accountIds),
                 inArray(transactions.toAccountId, accountIds)
             )
-        );
+        )
+        .orderBy(transactions.createdAt);
 
     return NextResponse.json({ success: true, data: history });
 });

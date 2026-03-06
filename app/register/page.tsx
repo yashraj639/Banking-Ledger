@@ -19,7 +19,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(name, email, password);
-      router.push("/login?registered=true");
+      router.push("/login");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -33,7 +33,7 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="inline-block bg-[#bbf7d0] border-2 border-black px-4 py-2 mb-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-            <span className="text-2xl font-black tracking-tight">🏦 ZENO</span>
+            <span className="text-2xl font-black tracking-tight">ZENO</span>
           </div>
           <h1 className="text-4xl font-black text-black leading-tight">
             Open your
@@ -89,6 +89,17 @@ export default function RegisterPage() {
                 placeholder="Min 8 characters"
                 className="w-full border-2 border-black px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-black bg-white"
               />
+              {password.length > 0 && password.length < 8 && (
+                <p className="text-xs font-bold text-red-600 mt-1">
+                  {8 - password.length} more character
+                  {8 - password.length !== 1 ? "s" : ""} needed
+                </p>
+              )}
+              {password.length >= 8 && (
+                <p className="text-xs font-bold text-green-700 mt-1">
+                  ✓ Looks good!
+                </p>
+              )}
             </div>
 
             {error && (
