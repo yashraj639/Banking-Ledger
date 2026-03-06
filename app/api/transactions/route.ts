@@ -108,8 +108,10 @@ export const POST = withErrorHandler(async (req: Request) => {
         }).where(eq(transactions.id, transaction.id))
     })
 
-    // 10. Send email notification
-    await sendTransactionEmail(fromAccountId, toAccountId, amount);
+    // 10. Send email notification (non-blocking — don't fail transfer if email fails)
+    sendTransactionEmail(fromAccountId, toAccountId, amount).catch((err) => {
+        console.warn("[Email] Failed to send transaction email:", err.message);
+    });
 
     return NextResponse.json({ success: true }, { status: 201 });
 
