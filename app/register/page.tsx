@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { register } from "@/app/lib/api";
+import { Landmark } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,7 +34,10 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="inline-block bg-[#bbf7d0] border-2 border-black px-4 py-2 mb-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-            <span className="text-2xl font-black tracking-tight">ZENO</span>
+            <div className="flex items-center gap-2">
+            <Landmark />
+            <span className="text-2xl font-black tracking-tight"> ZENO</span>
+          </div>
           </div>
           <h1 className="text-4xl font-black text-black leading-tight">
             Open your

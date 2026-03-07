@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/app/lib/api";
+import { Landmark } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,7 +40,10 @@ export default function LoginPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="inline-block bg-[#fde047] border-2 border-black px-4 py-2 mb-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+            <div className="flex items-center gap-2">
+            <Landmark />
             <span className="text-2xl font-black tracking-tight"> ZENO</span>
+          </div>
           </div>
           <h1 className="text-4xl font-black text-black leading-tight">
             Welcome
